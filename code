@@ -1,0 +1,1113 @@
+/*
+ *
+ * Castle Run
+ * Took me about 1 week to complete
+ * Although its not as complicated as AEROTIEAN, the gameplay is slightly better! =D
+ * Tell me your top scores in the Tips and Thanks!
+*/
+
+smooth();
+var scene = 'logo';
+var inLeft = -800;
+var inRight = 800;
+var ilT = 79;
+var ilTR = 0.001;
+var ilTY = 5;
+var logoIn = true;
+var logoT = 0;
+var lOut = 0.1;
+var tW = 0;
+var x_VEL = 0.0;
+var x_ACC = 1.5;
+var x_MAX = 5;
+var y_VEL = 0.0;
+var y_MAX = 15;
+var y_ACC = 1.1;
+var tempYPos = 0;
+var jumpUp = 0;
+var fallDown = 0;
+var bi_X = [0, 400];
+var jump = false;
+var shakeIt = 0;
+var keys = [];
+var spikeX = [400,500];
+var fbrx = [];
+var fireRo = [];
+var blockX = [];
+var dead = false;
+var clicked = false;
+var hoverButton = false;
+var deadTimmer = 0;
+var op;
+var opp = 255;
+var fling = [];
+var x = [];
+var lvaX = [];
+var lvaY = [];
+var lvaS = [];
+var runBlockX = [];
+var score = 0;
+var x1 = 0;
+var y1 = 0;
+var s1 = 0;
+var lvaF = [color(255)];
+var lvaC = [color(null), color(255, 0, 0), color(171, 0, 0), color(255, 94, 0, 50), color(145, 48, 0, 50)];
+var colors = [color(212, 0, 0), color(163, 0, 0), color(117, 0, 0), color(71, 0, 0), color(0, 0, 0), color(0), color(0)];
+var colors2 = [color(255, 0, 179, 3), color(255, 0, 0, 3), color(153, 0, 0, 3), color(255, 106, 0, 3)];
+
+for(var i = 0; i < 150; i++) {
+    lvaX.push(random(-40,width));
+    lvaY.push(random(390,410));
+    lvaS.push(random(2,6));
+    lvaF.push(ceil(random(0,lvaC.length-1)));
+}
+for(var i = 0; i < 40; i++) {
+    fling.push(random(360));
+    x.push(0);
+}
+for(var i = 0; i < 457; i += 20) {
+    runBlockX.push(i);
+}
+
+keyPressed = function() {
+    keys[keyCode] = true;
+};
+keyReleased = function() {
+    keys[keyCode] = false;
+};
+mouseClicked = function() {
+    clicked = true;
+};
+
+var torch2 = function(x,y,s,r) {
+    pushMatrix();
+    translate(x,y);
+    scale(s);
+    strokeWeight(1);
+    stroke(36, 36, 36);
+    fill(74, 74, 74);
+    beginShape();
+    vertex(200,200);
+    vertex(192,192);
+    vertex(195,188);
+    vertex(185,154);
+    vertex(200,159);
+    vertex(215,154);
+    vertex(205,188);
+    vertex(208,192);
+    vertex(200,200);
+    endShape();
+    line(200,200,200,161);
+    line(205,189,195,189);
+    
+    noStroke();
+    fill(181, 109, 0);
+    beginShape();
+    vertex(196,158);
+    bezierVertex(194,134,171,148,183,123);
+    bezierVertex(183,139,196,132,195,145);
+    endShape();
+    
+    beginShape();
+    vertex(199,154);
+    bezierVertex(204,119,178,140,200,97);
+    bezierVertex(196,125,223,116,200,152);
+    endShape();
+    
+    beginShape();
+    vertex(204,152);
+    bezierVertex(220,143,239,140,218,119);
+    bezierVertex(216,143,221,120,203,152);
+    endShape();
+    
+    popMatrix();
+};
+var redJewel = function(x,y,s,r) {
+    pushMatrix();
+    pushStyle();
+    translate(x,y);
+    scale(s);
+    rotate(r);
+    
+    noStroke();
+    fill(255, 0, 0);
+    beginShape();
+    vertex(0,20);
+    vertex(-12,10);
+    vertex(-12,-7);
+    vertex(0,-18);
+    vertex(12,-7);
+    vertex(12,10);
+    endShape();
+    
+    fill(227, 0, 0);
+    quad(0,15,-8,8,-12,10,0,20);
+    fill(153, 0, 0);
+    quad(0,15,8,8,12,10,0,20);
+    fill(179, 11, 11);
+    quad(12,-7,8,-5,8,8,12,10);
+    fill(222, 0, 0);
+    quad(0,-18,0,-12,8,-5,12,-7);
+    fill(245, 63, 63);
+    quad(-12,-7,0,-18,0,-12,-8,-5);
+    fill(255, 89, 89);
+    quad(-8,-5,-12,-7,-12,10,-8,8);
+    
+    fill(255, 0, 0);
+    beginShape();
+    vertex(0,15);
+    vertex(-8,8);
+    vertex(-8,-5);
+    vertex(0,-12);
+    vertex(8,-5);
+    vertex(8,8);
+    endShape();
+    
+    popStyle();
+    popMatrix();
+};
+var blueJewel = function(x,y,s,r) {
+    pushMatrix();
+    pushStyle();
+    translate(x,y);
+    scale(s);
+    rotate(r);
+    rectMode(CENTER);
+    
+    noStroke();
+    fill(0, 0, 255);
+    rect(0,0,32,32);
+    
+    fill(90, 87, 250);
+    quad(-16,16,-16,-16,-11,-10,-11,11);
+    fill(77, 61, 255);
+    quad(16,-16,-16,-16,-11,-10,10,-10);
+    fill(17, 2, 181);
+    quad(16,-16,16,16,10,11,10,-10);
+    fill(33, 10, 201);
+    quad(-16,16,16,16,10,11,-11,11);
+    popStyle();
+    popMatrix();
+};
+var yellowJewel = function(x,y,s,r) {
+    pushMatrix();
+    pushStyle();
+    translate(x,y);
+    scale(s);
+    rotate(r);
+    rectMode(CENTER);
+    noStroke();
+    fill(255, 255, 0);
+    triangle(-17,17,0,-17,17,17);
+    fill(255, 255, 102);
+    quad(-17,17,0,-17,0,-7,-10,13);
+    fill(237, 237, 0);
+    quad(17,17,0,-17,0,-7,10,13);
+    fill(201, 201, 8);
+    quad(17,17,-17,17,-10,13,10,13);
+    popStyle();
+    popMatrix();
+};
+var purpleJewel = function(x,y,s,r) {
+    pushMatrix();
+    pushStyle();
+    translate(x,y);
+    scale(s);
+    rotate(r);
+    rectMode(CENTER);
+    noStroke();
+    fill(255, 0, 255);
+    quad(0,-18,12,0,0,18,-12,0);
+    fill(227, 9, 198);
+    quad(0,-18,12,0,8,0,0,-12);
+    fill(179, 6, 156);
+    quad(0,18,12,0,8,0,0,12);
+    fill(255, 133, 225);
+    quad(0,18,-12,0,-8,0,0,12);
+    fill(255, 89, 214);
+    quad(0,-18,-12,0,-8,0,0,-12);
+    popStyle();
+    popMatrix();
+};
+var greenJewel = function(x,y,s,r) {
+    pushMatrix();
+    pushStyle();
+    translate(x,y);
+    scale(s);
+    rotate(r);
+    rectMode(CENTER);
+    noStroke();
+    fill(0, 255, 0);
+    beginShape();
+    vertex(-5,-15);
+    vertex(7,-15);
+    vertex(16,-6);
+    vertex(16,6);
+    vertex(7,15);
+    vertex(-5,15);
+    vertex(-14,6);
+    vertex(-14,-6);
+    endShape();
+    fill(172, 255, 163);
+    quad(-14,6,-14,-6,-10,-4,-10,5);
+    fill(107, 255, 114);
+    quad(-5,-15,-14,-6,-10,-4,-3,-11);
+    fill(50, 237, 29);
+    quad(-5,-15,7,-15,5,-11,-3,-11);
+    fill(24, 217, 27);
+    quad(16,-6,7,-15,5,-11,12,-4);
+    fill(13, 196, 0);
+    quad(16,-6,16,6,12,4,12,-4);
+    fill(23, 176, 12);
+    quad(7,15,16,6,12,4,5,11);
+    fill(50, 199, 24);
+    quad(7,15,-5,15,-4,11,5,11);
+    fill(38, 235, 41);
+    quad(-14,6,-5,15,-4,11,-10,5);
+    popStyle();
+    popMatrix();
+};
+var whiteJewel = function(x,y,s,r) {
+    pushMatrix();
+    pushStyle();
+    translate(x,y);
+    scale(s);
+    rotate(r);
+    rectMode(CENTER);
+    noStroke();
+    fill(255);
+    ellipse(0,0,34,34);
+    strokeWeight(4);
+    stroke(181, 175, 181, 5);
+    noFill();
+    strokeCap(SQUARE);
+    
+    stroke(184, 184, 184);
+    arc(0,0,30,30,0,90);
+    stroke(217, 217, 217);
+    arc(0,0,30,30,90,180);
+    stroke(255, 255, 255);
+    arc(0,0,30,30,180,270);
+    stroke(219, 219, 219);
+    arc(0,0,30,30,270,360);
+    popStyle();
+    popMatrix();
+};
+var coin = function(x,y,s,r) {
+    pushMatrix();
+    translate(x,y);
+    scale(s);
+    rotate(r);
+    
+    noStroke();
+    fill(184, 156, 0);
+    ellipse(3,0,15,15);
+    fill(250, 213, 0);
+    ellipse(0,0,15,15);
+    
+    strokeWeight(5);
+    stroke(184, 156, 0);
+    line(0,-2,0,2);
+    
+    popMatrix();
+};
+var sherlockLogo = function(x,y,s,nxtScene) {
+    background(40);
+    strokeWeight(3);
+    stroke(0, 0, 0);
+    for(var i = 0, j = 800; i < 800, j > -262; i += 58, j -= 58) {
+        
+        pushMatrix();
+        translate(-51,-48);
+        line(j,-7,-2,i);
+        popMatrix();
+        
+        pushMatrix();
+        translate(458,158);
+        rotate(90);
+        line(400,i,-j,-101);
+        popMatrix();
+    }
+    pushMatrix();
+    pushStyle();
+    translate(x,y);
+    scale(s);
+    
+    var sLeft = function(x,y) {
+        pushMatrix();
+        translate(x,y);
+        
+        noStroke();
+        pushMatrix();
+        translate(-15,17);
+        fill(0, 0, 0, 100);
+        beginShape();
+        vertex(221,-220);
+        bezierVertex(21,-74,65,-125,-50,-43);
+        bezierVertex(-91,-11,-56,-14,-19,-20);
+        bezierVertex(50,-28,45,-22,14,7);
+        bezierVertex(-78,91,-73,76,-242,220);
+        bezierVertex(-137,116,-150,22,-150,-87);
+        bezierVertex(-160,-179,-90,-140,39,-154);
+        bezierVertex(137,-169,128,-167,220,-219);
+        endShape();
+        popMatrix();
+        
+        stroke(0, 0, 0);
+        fill(0, 0, 0);
+        beginShape();
+        vertex(221,-220);
+        bezierVertex(21,-74,65,-125,-50,-43);
+        bezierVertex(-91,-11,-56,-14,-19,-20);
+        bezierVertex(50,-28,45,-22,14,7);
+        bezierVertex(-78,91,-73,76,-242,220);
+        bezierVertex(-137,116,-150,22,-150,-87);
+        bezierVertex(-160,-179,-90,-140,39,-154);
+        bezierVertex(137,-169,128,-167,220,-219);
+        endShape();
+        
+        noStroke();
+        for(var i = 0.71; i < 1.03; i += 0.02) {
+            pushMatrix();
+            translate(1,-3);
+            scale(i);
+            fill(179, 64, 14, 20);
+            beginShape();
+            vertex(221,-220);
+            bezierVertex(21,-74,65,-125,-50,-43);
+            bezierVertex(-91,-11,-56,-14,-19,-20);
+            bezierVertex(50,-28,45,-22,14,7);
+            bezierVertex(-78,91,-73,76,-242,220);
+            bezierVertex(-137,116,-150,22,-150,-87);
+            bezierVertex(-160,-179,-90,-140,39,-154);
+            bezierVertex(137,-169,128,-167,220,-219);
+            endShape();
+            popMatrix();
+        }
+        
+        popMatrix();
+    };
+    var sRight = function(x,y) {
+        pushMatrix();
+        translate(x,y);
+        
+        noStroke();
+        pushMatrix();
+        translate(-14,18);
+        fill(0, 0, 0, 100);
+        beginShape();
+        vertex(243,-220);
+        bezierVertex(214,-187,180,-160,94,-108);
+        bezierVertex(-133,12,11,-48,46,-39);
+        bezierVertex(79,-33,53,7,7,46);
+        bezierVertex(-54,97,-25,71,-226,223);
+        bezierVertex(-54,122,-82,152,103,145);
+        bezierVertex(186,144,152,53,155,-34);
+        bezierVertex(157,-119,137,-103,240,-216);
+        endShape();
+        popMatrix();
+        
+        stroke(0, 0, 0);
+        fill(0, 0, 0);
+        beginShape();
+        vertex(243,-220);
+        bezierVertex(214,-187,180,-160,94,-108);
+        bezierVertex(-133,12,11,-48,46,-39);
+        bezierVertex(79,-33,53,7,7,46);
+        bezierVertex(-54,97,-25,71,-226,223);
+        bezierVertex(-54,122,-82,152,103,145);
+        bezierVertex(186,144,152,53,155,-34);
+        bezierVertex(157,-119,137,-103,240,-216);
+        endShape();
+        
+        noStroke();
+        for(var i = 0.71; i < 1.03; i += 0.02) {
+            pushMatrix();
+            translate(8,-2);
+            scale(i);
+            fill(179, 64, 14, 20);
+            beginShape();
+            vertex(243,-220);
+            bezierVertex(214,-187,180,-160,94,-108);
+            bezierVertex(-133,12,11,-48,46,-39);
+            bezierVertex(79,-33,53,7,7,46);
+            bezierVertex(-54,97,-25,71,-226,223);
+            bezierVertex(-54,122,-82,152,103,145);
+            bezierVertex(186,144,152,53,155,-34);
+            bezierVertex(157,-119,137,-103,240,-216);
+            endShape();
+            popMatrix();
+        }
+        
+        popMatrix();
+    };
+    var vortexA = 0;
+    
+    if(ilT < 0.07) {
+        logoIn = false;
+    }
+    
+    if(logoIn) {
+        ilT /= 1.1;
+        inLeft += ilT;
+        inRight -= ilT;
+    } else {
+        //vortex.draw();
+        textSize(25);
+        textAlign(CENTER);
+        
+        pushMatrix();
+        resetMatrix();
+        fill(0, 0, 0);
+        text('ѕнєяℓσ¢к нσℓмєѕ presents...'.substring(0, tW), 197, 379);
+        fill(255, 255, 255);
+        text('ѕнєяℓσ¢к нσℓмєѕ presents...'.substring(0, tW), width/2, 377);
+        popMatrix();
+        tW += 0.2;
+    }
+    
+    if(logoT > 260) {
+        lOut += 2;
+    }
+    
+    
+    noStroke();
+    fill(255, 255, 255, 10);
+    for(var i = 200; i < 549; i+= 5) {
+        ellipse(0,0,i,i);
+    }
+    
+    sRight(inRight+3,-4,-1);
+    sLeft(inLeft,0,1);
+    
+    pushMatrix();
+    resetMatrix();
+    noStroke();
+    fill(0, 0, 0, lOut);
+    rect(0,0,width,height);
+    popMatrix();
+    
+    logoT++;
+    
+    if(lOut > 255) {
+        scene = nxtScene;
+    }
+    
+    popMatrix();
+    popStyle();
+};
+
+{
+noStroke();
+fill(0);
+ellipse(150,150,320,320);
+var c1 = color(107, 0, 0);
+var c2 = color(94, 0, 0);
+for(var i = 43; i < 369; i += 10) {
+    for(var j = -71; j < 234; j += 2) {
+        pushMatrix();
+        rotate(23);
+        rectMode(CENTER);
+        fill(colors[ceil(random(0,colors.length-1))]);
+        rect(i,j,10,random(1.5,2));
+        popMatrix();
+    }
+   
+}
+for(var i = 0; i < 30; i++) {
+    x1 = random(0,320);
+    y1 = random(0,320);
+    s1 = random(20,60);
+    for(var j = 0; j < s1; j++) {
+        fill(255, 0, 0, 7);
+        ellipse(x1,y1,j,j);
+    }
+    for(var j = 0; j < s1*0.7; j++) {
+        fill(251, 255, 0, 7);
+        ellipse(x1,y1,j,j);
+    }
+    for(var j = 0; j < s1*0.4; j++) {
+        fill(255, 255, 255, 12);
+        ellipse(x1,y1,j,j);
+    }
+}
+fill(255, 255, 255, 4);
+for(var i = 0; i < 68; i++) {
+    beginShape();
+    vertex(61,9);
+    bezierVertex(169,-14,246,-36,346,191);
+    bezierVertex(314,i+26,158,i+-40,59,24);
+    endShape();
+}
+filter(BLUR,2);
+
+var fireball1 = get(0, 0, 300, 300);
+background(0);
+noStroke();
+fill(255, 255, 255);
+ellipse(150, 150, 300, 300);
+var fireballMask = get(0, 0, 300, 300);
+fireball1.mask(fireballMask);
+}//fireball image
+{
+    background(33, 33, 33);
+    
+    stroke(26, 26, 26);
+    fill(33, 33, 33);
+    rectMode(CENTER);
+    for(var i = 0; i < 440; i += 46) {
+        for(var j = 0; j < 440; j += 27) {
+            rect(i,j,46,27,8);
+        }
+    }
+for(var i = 0; i < 1700; i++) {
+    coin(random(width),random(random(250,300),357),random(0.1,0.9),random(360));
+}
+for(var i = 0; i < 27; i++) {
+    redJewel(random(width),random(random(250,300),357),random(0.1,0.4),random(360));
+    blueJewel(random(width),random(random(250,300),357),random(0.1,0.4),random(360));
+    greenJewel(random(width),random(random(250,300),357),random(0.1,0.4),random(360));
+    purpleJewel(random(width),random(random(250,300),357),random(0.1,0.4),random(360));
+    yellowJewel(random(width),random(random(250,300),357),random(0.1,0.4),random(360));
+    whiteJewel(random(width),random(random(250,300),357),random(0.1,0.4),random(360));
+}
+    
+    fill(23, 23, 23);
+    strokeWeight(5);
+    stroke(50);
+    rect(106,0,182,400);
+    
+    torch2(-141,42,1);
+    torch2(132,42,1);
+}//background image
+{
+rectMode(LEFT);
+filter(BLUR,2);
+var backgroundImage = get(-1,-1,401,401);
+var block = function(x,y,s) {
+    pushMatrix();
+    translate(x,y);
+    rectMode(CENTER);
+    strokeWeight(s*0.2);
+    stroke(0, 0, 0);
+    fill(50);
+    rect(0,0,s,s);
+    noStroke();
+    fill(50);
+    rect(0,-24+2.5,s,5);
+    popMatrix();
+};
+block(12,17,20);
+var blockImage = get(0,0,24,28);
+}//block image
+{
+    background(33, 33, 33);
+    strokeWeight(1);
+    stroke(0, 0, 0);
+    fill(33, 33, 33);
+    rectMode(CENTER);
+    for(var i = 0; i < 440; i += 46) {
+        for(var j = 0; j < 440; j += 27) {
+            rect(i,j,46,27,8);
+        }
+    }
+for(var i = 0; i < 1700; i++) {
+    coin(random(width),random(random(250,300),357),random(0.1,0.9),random(360));
+}
+for(var i = 0; i < 27; i++) {
+    redJewel(random(width),random(random(250,300),357),random(0.1,0.4),random(360));
+    blueJewel(random(width),random(random(250,300),357),random(0.1,0.4),random(360));
+    greenJewel(random(width),random(random(250,300),357),random(0.1,0.4),random(360));
+    purpleJewel(random(width),random(random(250,300),357),random(0.1,0.4),random(360));
+    yellowJewel(random(width),random(random(250,300),357),random(0.1,0.4),random(360));
+    whiteJewel(random(width),random(random(250,300),357),random(0.1,0.4),random(360));
+}
+    
+    fill(23, 23, 23);
+    strokeWeight(5);
+
+    stroke(50);
+    rect(106,0,182,400);
+
+
+    noStroke();
+    rect(0,325,width,100);
+    
+    torch2(-141,42,1);
+    torch2(132,42,1);
+    rectMode(LEFT);
+    filter(BLUR,2);
+    var backgroundImage2 = get(-1,-1,401,401);
+}//background image 2
+{
+
+image(backgroundImage2,0,0);
+resetMatrix();
+pushMatrix();
+scale(0.98,0.81);
+translate(-5,-19);
+noStroke();
+fill(255, 208, 0);
+
+beginShape();
+vertex(110,41);
+bezierVertex(-3,49,15,164,107,168);
+bezierVertex(40,151,37,62,107,43);
+endShape();
+
+beginShape();
+vertex(159,111);
+bezierVertex(124,113,82,167,160,168);
+bezierVertex(147,166,110,144,168,112);
+bezierVertex(152,237,194,108,158,168);
+endShape();
+
+beginShape();
+vertex(223,111);
+bezierVertex(106,149,301,136,172,168);
+bezierVertex(333,149,147,136,228,113);
+endShape();
+
+beginShape();
+vertex(263,51);
+bezierVertex(251,149,265,196,275,162);
+bezierVertex(267,180,255,95,293,94);
+bezierVertex(360,99,222,117,221,101);
+bezierVertex(297,91,261,117,274,48);
+endShape();
+
+beginShape();
+vertex(322,162);
+bezierVertex(289,149,350,69,319,53);
+endShape();
+
+beginShape();
+vertex(381,125);
+bezierVertex(365,78,275,189,382,163);
+bezierVertex(361,171,313,129,382,136);
+endShape();
+
+pushMatrix();
+translate(72,9);
+beginShape();
+vertex(57,174);
+bezierVertex(163,165,114,237,54,242);
+bezierVertex(107,232,96,279,111,290);
+bezierVertex(46,203,84,279,49,290);
+bezierVertex(86,292,41,271,44,228);
+bezierVertex(160,203,62,175,44,193);
+endShape();
+
+pushMatrix();
+translate(-26,0);
+beginShape();
+vertex(143,237);
+bezierVertex(138,343,218,277,203,242);
+bezierVertex(173,310,151,277,146,236);
+endShape();
+
+translate(-10,0);
+beginShape();
+vertex(225,287);
+bezierVertex(211,246,276,210,274,287);
+bezierVertex(274,275,238,217,228,287);
+endShape();
+popMatrix();
+popMatrix();
+popMatrix();
+
+var menuBackground = get(0,0,width,height);
+
+}//menu background image
+
+var spike = function(x,y) {
+    pushMatrix();
+    translate(x,y);
+    noStroke();
+    fill(94, 94, 94);
+    triangle(13,6,0,-10,10,10);
+    fill(38, 38, 38);
+    triangle(-10,10,0,-10,10,10);
+    popMatrix();
+};
+var square = function(x,y,r) {
+    rectMode(CENTER);
+    pushMatrix();
+    translate(x,y);
+    rotate(r);
+    noStroke();
+    fill(0, 0, 255);
+    rect(0,0,20,20);
+    fill(3, 3, 161);
+    quad(14,-13,10,-10,10,10,14,6);
+    fill(102, 97, 255);
+    quad(14.1,-13,10,-10,-10,-10,-6,-13);
+    popMatrix();
+};
+var fball = function(x,y,s,r) {
+    pushMatrix();
+    translate(x,y);
+    rotate(r);
+    image(fireball1,-s/2,-s/2,s,s);
+    popMatrix();
+};
+
+var Fireball = function(x) {
+    this.x = x;
+};
+Fireball.prototype.draw = function() {
+    for(var i = 0; i < fbrx.length; i++) {
+        fball(fbrx[i],320,30,fireRo[i]);
+        if(fbrx[i] < -50) {
+            fbrx.splice(i,1);
+            fireRo.splice(i,1);
+        }
+        fbrx[i] -= 7;
+        fireRo[i] -= 7;
+    }
+    if(ceil(random(100)) === 10) {
+        fbrx.push(450);
+        fireRo.push(random(360));
+    }
+};
+Fireball.prototype.freeze = function() {
+    for(var i = 0; i < fbrx.length; i++) {
+        fball(fbrx[i],320,30,fireRo[i]);
+        if(fbrx[i] < -50) {
+            fbrx.splice(i,1);
+            fireRo.splice(i,1);
+        }
+    }
+};
+var fire = new Fireball();
+
+var Player = function(x,y,r) {
+    this.x = x;
+  
+  this.y = y;
+    this.r = r;
+};
+Player.prototype.draw = function() {
+    square(this.x,this.y,this.r);
+};
+Player.prototype.jump = function() {
+    if(keys[UP] & jumpUp !== 1 & fallDown !== 1) {
+        jumpUp = 1;
+        y_VEL = -y_MAX;
+        tempYPos = this.y;
+    }
+    if(jumpUp === 1) {
+        y_VEL -= y_ACC*0.8;
+        if(y_VEL <= -y_MAX) {
+            jumpUp = 0;
+            fallDown = 1;
+        }
+    }
+    if(fallDown === 1){
+        if(this.y > tempYPos) {
+            jumpUp = 3;
+            fallDown = 3;
+            y_VEL = 0;
+            if(abs(this.y - tempYPos) > 0.0000000000001) {
+                this.y = tempYPos;
+                jump = false;
+            }
+        }
+        if(jumpUp !== 3 & fallDown !== 3) {
+            y_VEL += y_ACC;
+        }
+    }
+    if(jump) {
+        this.r += 3.25;
+    } else if(!jump) {
+        this.r = 0;
+    }
+    square(this.x,this.y,this.r);
+    this.y += y_VEL;
+};
+Player.prototype.freeze = function() {
+    square(this.x,this.y,this.r);
+};
+Player.prototype.check = function() {
+    for(var i = 0; i < spikeX.length; i++) {
+        if(this.x+10 > spikeX[i]-10 & this.x - 10 < spikeX[i]+10 & this.y+10 > 325-10) {
+            dead = true;
+        }
+    }
+    for(var i = 0; i < fbrx.length; i++) {
+        if(this.x+10 > fbrx[i]-15 & this.x-10 < fbrx[i]+15 & this.y+10 > 325-15) {
+            dead = true;
+        }
+    }
+};
+Player.prototype.break = function() {
+    for(var i = 0; i < x.length; i++) {
+        pushMatrix();
+        translate(62,325);
+        rotate(fling[i]);
+        noStroke();
+        fill(0, 0,255, opp);
+        rect(0,x[i],2,2);
+        popMatrix();
+        x[i] -= 5;
+        opp -= 0.2;
+    }
+};
+var player = new Player(62,325,0);
+
+var runBlock = function() {
+    
+};
+runBlock.prototype.draw = function() {
+    for(var i = 0; i < runBlockX.length; i++) {
+        image(blockImage,runBlockX[i],40);
+        image(blockImage,runBlockX[i],20);
+        image(blockImage,runBlockX[i],0);
+        image(blockImage,runBlockX[i],391);
+        image(blockImage,runBlockX[i],371);
+        image(blockImage,runBlockX[i],351);
+        image(blockImage,runBlockX[i],331);
+        if(runBlockX[i] < -24) {
+            runBlockX.splice(i, 1);
+            runBlockX.push(435);
+        }
+        runBlockX[i] -= 5;
+    }
+};
+runBlock.prototype.freeze = function() {
+    for(var i = 0; i < runBlockX.length; i++) {
+        image(blockImage,runBlockX[i],40);
+        image(blockImage,runBlockX[i],20);
+        image(blockImage,runBlockX[i],0);
+        image(blockImage,runBlockX[i],391);
+        image(blockImage,runBlockX[i],371);
+        image(blockImage,runBlockX[i],351);
+        image(blockImage,runBlockX[i],331);
+        if(runBlockX[i] < -24) {
+            runBlockX.splice(i, 1);
+            runBlockX.push(435);
+        }
+    }
+};
+var blox = new runBlock();
+
+var sendOp = function(x) {
+    this.x = x;
+};
+sendOp.prototype.draw = function() {
+    for(var i = 0; i < spikeX.length; i++) {
+        spike(spikeX[i],325);
+    }
+};
+sendOp.prototype.send = function() {
+    op = ceil(random(0,40));
+    
+    for(var i = 0; i < spikeX.length; i++) {
+        if(spikeX.length > 0) {
+            spikeX[i] -= 5;
+        }
+        if(spikeX[i] < 0) {
+            spikeX.splice(i, 1);
+        }
+    }
+        
+    if(op === 5 & spikeX.length < 4) {
+        spikeX.push(400+(ceil(random(20)*5)));
+    }
+    
+};
+var sb = new sendOp();
+
+var lava = function() {
+    
+};
+lava.prototype.draw = function() {
+    rectMode(LEFT);
+    noStroke();
+    fill(255, 0, 0);
+    rect(0,373,400,200);
+    for(var i = 0; i < 100; i += 1) {
+        fill(255, 0, 0, 12);
+        rect(0,425,400,-i);
+    }
+    
+    for(var i = 0; i < lvaX.length; i++) {
+        noStroke();
+        fill(189, 2, 2);
+        ellipse(lvaX[i],lvaY[i],lvaS[i],lvaS[i]);
+        
+        lvaY[i] -= lvaS[i]*0.3;
+        lvaX[i] += 0.5;
+        
+        if(lvaY[i] < 325) {
+            lvaY.splice(i, 1);
+            lvaX.splice(i, 1);
+            lvaF.splice(i, 1);
+            lvaS.splice(i, 1);
+            
+            lvaX.push(random(-40,width));
+            lvaY.push(random(410,420));
+            lvaS.push(random(2,6));
+            lvaF.push(ceil(random(lvaC.length-1)));
+        }
+    }
+};
+lava.prototype.freeze = function() {
+    rectMode(LEFT);
+    noStroke();
+    fill(255, 0, 0);
+    rect(0,373,400,200);
+    for(var i = 0; i < 100; i += 1) {
+        fill(255, 0, 0, 12);
+        rect(0,425,400,-i);
+    }
+    
+    for(var i = 0; i < lvaX.length; i++) {
+        noStroke();
+        fill(189, 2, 2);
+        ellipse(lvaX[i],lvaY[i],lvaS[i],lvaS[i]);
+    }
+};
+var lva = new lava();
+
+var Button = function(x,y,w,h,txt,nxt) {
+    this.x = x;
+    this.y = y;
+    this.w = w;
+    this.h = h;
+    this.txt = txt;
+    this.nxt = nxt;
+};
+Button.prototype.draw = function() {
+    textFont(createFont("cursive"));
+    if(mouseX > this.x-(this.w/2) & mouseX < this.x+(this.w/2) & mouseY > this.y-(this.h/2) & mouseY < this.y+(this.h/2)) {
+        if(clicked) {
+            scene = this.nxt;
+            if(scene === "play") {
+                spikeX = [400,500];
+                fbrx = [];
+                fireRo = [];
+                blockX = [];
+                dead = false;
+                deadTimmer = 0;
+                opp = 255;
+                fling = [];
+                x = [];
+                score = 0;
+                for(var i = 0; i < 40; i++) {
+                    fling.push(random(360));
+                    x.push(0);
+                }
+            }
+        }
+        rectMode(CENTER);
+        strokeWeight(5);
+        fill(255, 255, 255, 150);
+        stroke(255, 255, 255, 200);
+        rect(this.x,this.y,this.w,this.h,10);
+        hoverButton = true;
+        fill(0);
+        textSize(22);
+        textAlign(CENTER,CENTER);
+        text(this.txt,this.x,this.y);
+    } else {
+        rectMode(CENTER);
+        strokeWeight(5);
+        fill(255, 255, 255, 100);
+        stroke(255, 255, 255, 200);
+        rect(this.x,this.y,this.w,this.h,10);
+        fill(0);
+        textSize(20);
+        textAlign(CENTER,CENTER);
+        text(this.txt,this.x,this.y);
+    }
+};
+var playButton = new Button(200,280,140,35,"P  L  A  Y","play");
+var howButton = new Button(200,350,140,35,"H   O   W","how");
+var backButton = new Button(200,360,140,35,"B  A  C  K","menu");
+var replayButton = new Button(200,280,140,35,"R E P L A Y","play");
+
+draw = function() {
+    switch(scene){
+        case "logo":
+            sherlockLogo(200,200,0.66,"menu");
+        break;
+        case "menu":
+            image(menuBackground,0,0);
+            playButton.draw();
+            howButton.draw();
+            break;
+        case "play":
+            {
+    if(bi_X[0] <= -400) {
+        bi_X[0] = 400;
+    } else if(bi_X[1] <= -400) {
+     
+   bi_X[1] = 400;
+    }
+    
+    if(dead) {
+        if(deadTimmer < 30) {
+            deadTimmer++;
+            translate(random(-5,5),random(-5,5));
+        } else {
+            resetMatrix();
+  
+      }
+        background(30);
+        image(backgroundImage,bi_X[0],0);
+        image(backgroundImage,bi_X[1],0);
+        player.break();
+        blox.freeze();
+        lva.freeze();
+        fire.freeze();
+        rectMode(CENTER);
+        fill(0, 0, 0, 100);
+        noStroke();
+        rect(200,200,width,height);
+        textFont(createFont("cursive"),20);
+        fill(255);
+        textAlign(CENTER,CENTER);
+        text("You crashed!\nYour final score was " + score + " meters!",200,200);
+        replayButton.draw();
+        backButton.draw();
+    } else {
+        score++;
+        background(30);
+        image(backgroundImage,bi_X[0],0);
+        image(backgroundImage,bi_X[1],0);
+        blox.draw();
+        player.draw();
+        fire.draw();
+        player.check();
+        sb.send();
+        if(keys[UP]) {
+            jump = true;
+       
+ }
+        if(jump) {
+            player.jump();
+        }
+        bi_X[0] -= 3;
+        bi_X[1] -= 3;
+    
+        lva.draw();
+    }
+    sb.draw();
+    }//Game
+            break;
+        case "how":
+            image(backgroundImage2,0,0);
+            textFont(createFont("MS Gothic"),21);
+            fill(255);
+            textAlign(CENTER,CENTER);
+            text("-Use the UP Arrow key to jump\n\n\nAvoid spikes and rolling fireballs\n\n\n-Last as long as you can",200,200);
+            backButton.draw();
+            break;
+    }
+    cursor(hoverButton ? 'pointer' : 'default');
+    clicked = false;
+    hoverButton = false;
+};
+
+
